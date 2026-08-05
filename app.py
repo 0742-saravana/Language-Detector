@@ -119,14 +119,14 @@ with left_col:
         index=0
     )
     
-    target_code_map = {"English": "en", "Tamil": "ta", "Hindi": "hi"}
+    target_code_map = {"English": "en", "தமிழ்": "ta", "हिन्दी(Hindi)": "hi"}
     
     detect_btn = st.button("🚀 Analyze Text", type="primary", use_container_width=True)
 
 with right_col:
     st.subheader("🎯 Results & Insights")
     
-    if detect_btn:
+  if detect_btn:
         if user_input.strip() == "":
             st.warning("Please enter some text first!")
         else:
@@ -142,20 +142,30 @@ with right_col:
             language_name = lang_data['name']
             iso_code = lang_data['code']
             
-            # Display Result Card
-            st.markdown(f"""
-            <div class="result-card">
-                <small style="color: #6c757d; font-weight: bold;">PREDICTED LANGUAGE</small>
-                <h2 style="color: #1e3c72; margin: 0;">{language_name} (Code: {pred_code})</h2>
-                <br>
-                <span style="background-color: #e3f2fd; color: #0d47a1; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold;">
-                    Confidence: {confidence:.2f}%
-                </span>
-            </div>
-            """, unsafe_allow_html=True)
+            # --- CONFIDENCE THRESHOLD CHECK ---
+            CONFIDENCE_THRESHOLD = 50.0  # Cutoff percentage
+            
+            if confidence < CONFIDENCE_THRESHOLD:
+                st.warning(
+                    f"⚠️ **Low Confidence Prediction ({confidence:.1f}%)**\n\n"
+                    f"Short phrases or single words often lack enough character pattern data. "
+                    f"The model's best guess is **{language_name}**, but consider typing a full sentence for higher accuracy!"
+                )
+            else:
+                # Display Result Card for High Confidence
+                st.markdown(f"""
+                <div class="result-card">
+                    <small style="color: #6c757d; font-weight: bold;">PREDICTED LANGUAGE</small>
+                    <h2 style="color: #1e3c72; margin: 0;">{language_name} (Code: {pred_code})</h2>
+                    <br>
+                    <span style="background-color: #e3f2fd; color: #0d47a1; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold;">
+                        Confidence: {confidence:.2f}%
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
             
             # 2. Pronunciation Audio Guide (gTTS)
-            st.markdown("##### 🔊 Listen to Pronunciation")
+            st.markdown("##### 🔊 Listen Pronunciation")
             try:
                 tts = gTTS(text=user_input, lang=iso_code)
                 sound_file = io.BytesIO()
@@ -178,7 +188,7 @@ with right_col:
             except Exception as e:
                 st.error("Could not complete translation right now.")
             
-            st.success("yay😍!!! now you know the language, it's pronunciation, and it's meaning!!")
+            st.success("yay😍!!! now you know the language, sound, and meaning!!")
             
             # 4. Top 3 Probabilities
             with st.expander("📊 View Probability Breakdown"):
@@ -188,5 +198,3 @@ with right_col:
                     prob = probabilities[idx] * 100
                     st.write(f"**{l_name}**: {prob:.1f}%")
                     st.progress(int(prob))
-    else:
-        st.info("👈 Enter text on the left and click **Analyze Text** to view detection, audio, and translation.")
