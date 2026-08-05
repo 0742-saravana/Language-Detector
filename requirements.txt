@@ -4,4 +4,3 @@ joblib
 numpy
 deep-translator
 gTTS
-fasttext-wheel
