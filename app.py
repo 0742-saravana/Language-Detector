@@ -126,7 +126,7 @@ with left_col:
 with right_col:
     st.subheader("🎯 Results & Insights")
     
-  if detect_btn:
+    if detect_btn:
         if user_input.strip() == "":
             st.warning("Please enter some text first!")
         else:
@@ -198,3 +198,5 @@ with right_col:
                     prob = probabilities[idx] * 100
                     st.write(f"**{l_name}**: {prob:.1f}%")
                     st.progress(int(prob))
+    else:
+        st.info("👈 Enter text on the left and click **Analyze Text** to view detection, audio, and translation.")
