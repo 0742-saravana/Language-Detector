@@ -79,12 +79,12 @@ with st.sidebar:
     st.markdown("**Created by:** SARAVANAVEL R")
     st.divider()
     
-    st.markdown("### 📊 this app Features")
+    st.markdown("### 📊 this app's Features")
     st.markdown("- 🔍 **NLP Detection**\n- 🔊 **Audio Pronunciation**\n- 🔄 **AI Translation**")
     st.info("Input at least a sentence for the best accuracy!")
     
     st.divider()
-    st.write("note:")
+    st.write("note :")
     st.markdown("### 💡 Supported Languages")
     st.caption(", ".join([info['name'] for info in LANG_INFO.values()]))
     st.write("more languages coming soon !!!")
@@ -115,7 +115,7 @@ with left_col:
     # Target translation choice
     target_lang = st.selectbox(
         "Translate text into:",
-        options=["English", "Tamil", "Hindi"],
+        options=["English", "தமிழ்", "हिन्दी(Hindi)"],
         index=0
     )
     
