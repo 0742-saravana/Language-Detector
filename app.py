@@ -91,7 +91,7 @@ with st.sidebar:
 st.markdown("""
 <div class="main-header">
     <h1>🌐 Language Detection & AI Translator</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first app!!!</p>
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application !</p>
     <p class="author-tag">by saravanan😎✌️</p>
 </div>
 """, unsafe_allow_html=True)
@@ -176,7 +176,7 @@ with right_col:
             except Exception as e:
                 st.error("Could not complete translation right now.")
             
-            st.success("yay😍!!! now you know the language, sound, and meaning!!")
+            st.success("yay😍!!! now you know the language, pronunciation, and meaning!!")
             
             # 4. Top 3 Probabilities
             with st.expander("📊 View Probability Breakdown"):
