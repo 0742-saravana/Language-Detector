@@ -1,10 +1,6 @@
-jupyter
-pandas
-numpy
-matplotlib
-seaborn
-scikit-learn
-nltk
-wordcloud
-joblib
 streamlit
+scikit-learn
+joblib
+numpy
+deep-translator
+gTTS
