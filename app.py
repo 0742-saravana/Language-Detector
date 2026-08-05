@@ -1,3 +1,14 @@
+import urllib.request
+import os
+
+@st.cache_resource
+def load_fasttext_model():
+    model_path = 'lid.176.ftz'
+    # Download file automatically if not present in the workspace
+    if not os.path.exists(model_path):
+        url = 'https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz'
+        urllib.request.urlretrieve(url, model_path)
+    return fasttext.load_model(model_path)
 import streamlit as st
 import joblib
 import numpy as np
