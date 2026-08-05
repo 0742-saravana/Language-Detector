@@ -1,6 +1,7 @@
 streamlit
-scikit-learn
 joblib
 numpy
+scikit-learn
 deep-translator
 gTTS
+matplotlib
