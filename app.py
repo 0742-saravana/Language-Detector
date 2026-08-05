@@ -1,7 +1,10 @@
 import streamlit as st
 import joblib
 import numpy as np
-from utils import clean_text  # Uses the exact preprocessing from notebook 02
+import io
+from deep_translator import GoogleTranslator
+from gtts import gTTS
+from utils import clean_text  # Exact preprocessing from notebook 02
 
 # Page setup
 st.set_page_config(
@@ -11,10 +14,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for custom UI design
+# Custom CSS styling
 st.markdown("""
 <style>
-    /* Main banner styling */
     .main-header {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         padding: 2rem;
@@ -30,8 +32,6 @@ st.markdown("""
         color: #ffdd59;
         margin-top: -0.5rem;
     }
-    
-    /* Result card styling */
     .result-card {
         background-color: #f8f9fa;
         padding: 1.5rem;
@@ -52,43 +52,56 @@ def load_artifacts():
 
 vectorizer, model = load_artifacts()
 
-# Language code mapping dictionary
-LABEL_MAP = {
-    0: 'Arabic', 1: 'Danish', 2: 'Dutch', 3: 'English', 
-    4: 'French', 5: 'German', 6: 'Greek', 7: 'Hindi', 8: 'Italian',
-    9: 'Kannada', 10: 'Malayalam', 11: 'Portuguese', 12: 'Russian',
-    13: 'Spanish', 14: 'Swedish', 15: 'Tamil', 16: 'Turkish'
+# Mapping dictionary: Name & ISO 639-1 Code
+LANG_INFO = {
+    0: {'name': 'Arabic', 'code': 'ar'},
+    1: {'name': 'Danish', 'code': 'da'},
+    2: {'name': 'Dutch', 'code': 'nl'},
+    3: {'name': 'English', 'code': 'en'},
+    4: {'name': 'French', 'code': 'fr'},
+    5: {'name': 'German', 'code': 'de'},
+    6: {'name': 'Greek', 'code': 'el'},
+    7: {'name': 'Hindi', 'code': 'hi'},
+    8: {'name': 'Italian', 'code': 'it'},
+    9: {'name': 'Kannada', 'code': 'kn'},
+    10: {'name': 'Malayalam', 'code': 'ml'},
+    11: {'name': 'Portuguese', 'code': 'pt'},
+    12: {'name': 'Russian', 'code': 'ru'},
+    13: {'name': 'Spanish', 'code': 'es'},
+    14: {'name': 'Swedish', 'code': 'sv'},
+    15: {'name': 'Tamil', 'code': 'ta'},
+    16: {'name': 'Turkish', 'code': 'tr'}
 }
 
-# Sidebar - Project Information
+# Sidebar Info
 with st.sidebar:
     st.title("🌐 Language Detector")
-    st.markdown("**Created by:** SARAVANAVEL R")
+    st.markdown("**Created by:** saravanan😎✌️")
     st.divider()
     
-    st.markdown("### 📊 App Overview")
-    st.info("Please input at least a sentence, since the model is trained with a small dataset hehe!!")
+    st.markdown("### 📊 Features")
+    st.markdown("- 🔍 **NLP Detection**\n- 🔊 **Audio Pronunciation**\n- 🔄 **AI Translation**")
+    st.info("Input at least a sentence for the best accuracy!")
     
     st.divider()
     st.markdown("### 💡 Supported Languages")
-    st.caption(", ".join(LABEL_MAP.values()))
+    st.caption(", ".join([info['name'] for info in LANG_INFO.values()]))
 
 # Main Banner Header
 st.markdown("""
 <div class="main-header">
-    <h1>🌐 Language Detection App</h1>
+    <h1>🌐 Language Detection & AI Translator</h1>
     <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first app!!!</p>
-    <p class="author-tag">by SARAVANAN ✌️🤓</p>
+    <p class="author-tag">by saravanan😎✌️</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Layout: Split into Input Column (Left) and Results Column (Right)
+# Layout
 left_col, right_col = st.columns([1.2, 1], gap="large")
 
 with left_col:
     st.subheader("📝 Input Section")
-    st.write("Enter text in any supported language to identify it instantly.")
-    st.caption("💡 *Tip: Input at least a full sentence for best accuracy since the dataset is small!*")
+    st.write("Enter text in any supported language to detect, translate, and listen.")
     
     user_input = st.text_area(
         label="Input Text Area",
@@ -97,16 +110,25 @@ with left_col:
         label_visibility="collapsed"
     )
     
-    detect_btn = st.button("🚀 Detect Language", type="primary", use_container_width=True)
+    # Target translation choice
+    target_lang = st.selectbox(
+        "Translate prediction into:",
+        options=["English", "Tamil", "Hindi"],
+        index=0
+    )
+    
+    target_code_map = {"English": "en", "Tamil": "ta", "Hindi": "hi"}
+    
+    detect_btn = st.button("🚀 Analyze Text", type="primary", use_container_width=True)
 
 with right_col:
-    st.subheader("🎯 Results & Predictions")
+    st.subheader("🎯 Results & Insights")
     
     if detect_btn:
         if user_input.strip() == "":
             st.warning("Please enter some text first!")
         else:
-            # Preprocess and predict
+            # 1. Preprocess & Predict
             cleaned_text = clean_text(user_input)
             features = vectorizer.transform([cleaned_text])
             
@@ -114,9 +136,11 @@ with right_col:
             probabilities = model.predict_proba(features)[0]
             confidence = max(probabilities) * 100
             
-            language_name = LABEL_MAP.get(pred_code, f"Code {pred_code}")
+            lang_data = LANG_INFO.get(pred_code, {'name': f'Code {pred_code}', 'code': 'en'})
+            language_name = lang_data['name']
+            iso_code = lang_data['code']
             
-            # Display Main Result Card
+            # Display Result Card
             st.markdown(f"""
             <div class="result-card">
                 <small style="color: #6c757d; font-weight: bold;">PREDICTED LANGUAGE</small>
@@ -128,16 +152,39 @@ with right_col:
             </div>
             """, unsafe_allow_html=True)
             
-            # Fun success callout message
-            st.success("yay😍!!! now you know the language of the text you've entered!!")
+            # 2. Pronunciation Audio Guide (gTTS)
+            st.markdown("##### 🔊 Listen Pronunciation")
+            try:
+                tts = gTTS(text=user_input, lang=iso_code)
+                sound_file = io.BytesIO()
+                tts.write_to_fp(sound_file)
+                st.audio(sound_file, format='audio/mp3')
+            except Exception as e:
+                st.caption("⚠️ Audio preview not available for this input format.")
             
-            # Top 3 Prediction breakdown
-            top_3_indices = np.argsort(probabilities)[::-1][:3]
-            st.write("##### 📈 Probabilities Breakdown")
-            for idx in top_3_indices:
-                lang = LABEL_MAP.get(idx, f"Code {idx}")
-                prob = probabilities[idx] * 100
-                st.write(f"**{lang}**: {prob:.1f}%")
-                st.progress(int(prob))
+            st.divider()
+            
+            # 3. AI Translation (deep-translator)
+            st.markdown(f"##### 🔄 Translation ({target_lang})")
+            try:
+                translated_text = GoogleTranslator(
+                    source='auto', 
+                    target=target_code_map[target_lang]
+                ).translate(user_input)
+                
+                st.success(translated_text)
+            except Exception as e:
+                st.error("Could not complete translation right now.")
+            
+            st.success("yay😍!!! now you know the language, sound, and meaning!!")
+            
+            # 4. Top 3 Probabilities
+            with st.expander("📊 View Probability Breakdown"):
+                top_3_indices = np.argsort(probabilities)[::-1][:3]
+                for idx in top_3_indices:
+                    l_name = LANG_INFO.get(idx, {}).get('name', f"Code {idx}")
+                    prob = probabilities[idx] * 100
+                    st.write(f"**{l_name}**: {prob:.1f}%")
+                    st.progress(int(prob))
     else:
-        st.info("👈 Enter text on the left and click **Detect Language** to view results.")
+        st.info("👈 Enter text on the left and click **Analyze Text** to view detection, audio, and translation.")
