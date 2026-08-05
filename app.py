@@ -8,7 +8,7 @@ from utils import clean_text  # Exact preprocessing from notebook 02
 
 # Page setup
 st.set_page_config(
-    page_title="Language Detector | Saravanan",
+    page_title="Language Detective",
     page_icon="🌐",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -75,11 +75,11 @@ LANG_INFO = {
 
 # Sidebar Info
 with st.sidebar:
-    st.title("🌐 Language Detector")
+    st.title("🌐 Language Detective")
     st.markdown("**Created by:** SARAVANAVEL R")
     st.divider()
     
-    st.markdown("### 📊 this app's Features")
+    st.markdown("### 📊 Features")
     st.markdown("- 🔍 **NLP Detection**\n- 🔊 **Audio Pronunciation**\n- 🔄 **AI Translation**")
     st.info("Input at least a sentence for the best accuracy!")
     
@@ -93,7 +93,7 @@ with st.sidebar:
 st.markdown("""
 <div class="main-header">
     <h1>🌐 Language Detection & AI Translator</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application guys!! input any text to detect its language, pronunciation and it's meaning</p>
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application guys!! input any text to detect its language, pronunciation and it's meaning. note: enter a paragraph for better prediction</p>
     <p class="author-tag">- by SARO🤓</p>
 </div>
 """, unsafe_allow_html=True)
@@ -103,11 +103,11 @@ left_col, right_col = st.columns([1.2, 1], gap="large")
 
 with left_col:
     st.subheader("📝 Input Section")
-    st.write("Enter text in any supported language to detect, translate, and listen.")
+    st.write("Enter a paragraph in any supported language to detect, translate, and listen.")
     
     user_input = st.text_area(
-        label="Input Text Area",
-        placeholder="Type or paste your text here...",
+        label="Input Area",
+        placeholder="Type or paste your paragraph here...",
         height=180,
         label_visibility="collapsed"
     )
@@ -199,4 +199,4 @@ with right_col:
                     st.write(f"**{l_name}**: {prob:.1f}%")
                     st.progress(int(prob))
     else:
-        st.info("👈 Enter text on the left and click **Analyze Text** to view detection, audio, and translation.")
+        st.info("👈 Enter any paragraph on the left and click **Analyze Text** to view detection, audio, and translation.")
