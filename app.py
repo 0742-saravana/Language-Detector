@@ -87,6 +87,7 @@ with st.sidebar:
     st.write("note:")
     st.markdown("### 💡 Supported Languages")
     st.caption(", ".join([info['name'] for info in LANG_INFO.values()]))
+    st.write("more languages coming soon !!!")
 
 # Main Banner Header
 st.markdown("""
