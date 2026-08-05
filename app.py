@@ -1,19 +1,7 @@
-import urllib.request
-import os
-
-@st.cache_resource
-def load_fasttext_model():
-    model_path = 'lid.176.ftz'
-    # Download file automatically if not present in the workspace
-    if not os.path.exists(model_path):
-        url = 'https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz'
-        urllib.request.urlretrieve(url, model_path)
-    return fasttext.load_model(model_path)
 import streamlit as st
 import joblib
 import numpy as np
 import io
-import fasttext
 from deep_translator import GoogleTranslator
 from gtts import gTTS
 from utils import clean_text  # Exact preprocessing from notebook 02
@@ -55,22 +43,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load primary model artifacts
+# Load model artifacts
 @st.cache_resource
 def load_artifacts():
     vectorizer = joblib.load('tfidf_vectorizer.pkl')
     model = joblib.load('language_model.pkl')
     return vectorizer, model
 
-# Load FastText backup model
-@st.cache_resource
-def load_fasttext_model():
-    return fasttext.load_model('lid.176.ftz')
-
 vectorizer, model = load_artifacts()
-ft_model = load_fasttext_model()
 
-# Mapping dictionary for Custom Model: Name & ISO 639-1 Code
+# Mapping dictionary: Name & ISO 639-1 Code
 LANG_INFO = {
     0: {'name': 'Arabic', 'code': 'ar'},
     1: {'name': 'Danish', 'code': 'da'},
@@ -91,22 +73,6 @@ LANG_INFO = {
     16: {'name': 'Turkish', 'code': 'tr'}
 }
 
-# ISO 639-1 Code mapping for FastText fallback
-FASTTEXT_LANG_MAP = {
-    'en': 'English', 'ta': 'Tamil', 'hi': 'Hindi', 'fr': 'French',
-    'es': 'Spanish', 'de': 'German', 'it': 'Italian', 'ar': 'Arabic',
-    'ru': 'Russian', 'kn': 'Kannada', 'ml': 'Malayalam', 'pt': 'Portuguese',
-    'nl': 'Dutch', 'da': 'Danish', 'el': 'Greek', 'sv': 'Swedish', 'tr': 'Turkish'
-}
-
-def predict_fasttext(text):
-    clean_input = text.replace("\n", " ")
-    predictions = ft_model.predict(clean_input, k=1)
-    lang_code = predictions[0][0].replace("__label__", "")
-    confidence = float(predictions[1][0]) * 100
-    lang_name = FASTTEXT_LANG_MAP.get(lang_code, lang_code.upper())
-    return lang_name, lang_code, confidence
-
 # Sidebar Info
 with st.sidebar:
     st.title("🌐 Language Detector")
@@ -114,8 +80,8 @@ with st.sidebar:
     st.divider()
     
     st.markdown("### 📊 this app's Features")
-    st.markdown("- 🔍 **Hybrid NLP Detection (TF-IDF + FastText)**\n- 🔊 **Audio Pronunciation**\n- 🔄 **AI Translation**")
-    st.info("Uses custom TF-IDF model by default, and seamlessly falls back to Meta's FastText for short texts!")
+    st.markdown("- 🔍 **NLP Detection**\n- 🔊 **Audio Pronunciation**\n- 🔄 **AI Translation**")
+    st.info("Input at least a sentence for the best accuracy!")
     
     st.divider()
     st.write("note :")
@@ -164,7 +130,7 @@ with right_col:
         if user_input.strip() == "":
             st.warning("Please enter some text first!")
         else:
-            # 1. Primary Prediction (Custom Model)
+            # 1. Preprocess & Predict
             cleaned_text = clean_text(user_input)
             features = vectorizer.transform([cleaned_text])
             
@@ -172,30 +138,31 @@ with right_col:
             probabilities = model.predict_proba(features)[0]
             confidence = max(probabilities) * 100
             
-            CONFIDENCE_THRESHOLD = 50.0  # Cutoff percentage
+            lang_data = LANG_INFO.get(pred_code, {'name': f'Code {pred_code}', 'code': 'en'})
+            language_name = lang_data['name']
+            iso_code = lang_data['code']
             
-            # Hybrid Fallback Check
-            if confidence >= CONFIDENCE_THRESHOLD:
-                lang_data = LANG_INFO.get(pred_code, {'name': f'Code {pred_code}', 'code': 'en'})
-                language_name = lang_data['name']
-                iso_code = lang_data['code']
-                engine_used = "Custom TF-IDF Model"
+            # --- CONFIDENCE THRESHOLD CHECK ---
+            CONFIDENCE_THRESHOLD = 5.0  # Cutoff percentage
+            
+            if confidence < CONFIDENCE_THRESHOLD:
+                st.warning(
+                    f"⚠️ **Low Confidence Prediction ({confidence:.1f}%)**\n\n"
+                    f"Short phrases or single words often lack enough character pattern data. "
+                    f"The model's best guess is **{language_name}**, but consider typing a full sentence for higher accuracy!"
+                )
             else:
-                # Fallback to FastText AI for low-confidence inputs
-                language_name, iso_code, confidence = predict_fasttext(user_input)
-                engine_used = "FastText AI (Backup Engine)"
-
-            # Display Result Card
-            st.markdown(f"""
-            <div class="result-card">
-                <small style="color: #6c757d; font-weight: bold;">PREDICTED LANGUAGE ({engine_used})</small>
-                <h2 style="color: #1e3c72; margin: 0;">{language_name}</h2>
-                <br>
-                <span style="background-color: #e3f2fd; color: #0d47a1; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold;">
-                    Confidence: {confidence:.2f}%
-                </span>
-            </div>
-            """, unsafe_allow_html=True)
+                # Display Result Card for High Confidence
+                st.markdown(f"""
+                <div class="result-card">
+                    <small style="color: #6c757d; font-weight: bold;">PREDICTED LANGUAGE</small>
+                    <h2 style="color: #1e3c72; margin: 0;">{language_name} (Code: {pred_code})</h2>
+                    <br>
+                    <span style="background-color: #e3f2fd; color: #0d47a1; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold;">
+                        Confidence: {confidence:.2f}%
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
             
             # 2. Pronunciation Audio Guide (gTTS)
             st.markdown("##### 🔊 Listen Pronunciation")
@@ -223,14 +190,13 @@ with right_col:
             
             st.success("yay😍!!! now you know the language, sound, and meaning!!")
             
-            # 4. Top 3 Probabilities (If custom model was used)
-            if engine_used == "Custom TF-IDF Model":
-                with st.expander("📊 View Probability Breakdown"):
-                    top_3_indices = np.argsort(probabilities)[::-1][:3]
-                    for idx in top_3_indices:
-                        l_name = LANG_INFO.get(idx, {}).get('name', f"Code {idx}")
-                        prob = probabilities[idx] * 100
-                        st.write(f"**{l_name}**: {prob:.1f}%")
-                        st.progress(int(prob))
+            # 4. Top 3 Probabilities
+            with st.expander("📊 View Probability Breakdown"):
+                top_3_indices = np.argsort(probabilities)[::-1][:3]
+                for idx in top_3_indices:
+                    l_name = LANG_INFO.get(idx, {}).get('name', f"Code {idx}")
+                    prob = probabilities[idx] * 100
+                    st.write(f"**{l_name}**: {prob:.1f}%")
+                    st.progress(int(prob))
     else:
         st.info("👈 Enter text on the left and click **Analyze Text** to view detection, audio, and translation.")
