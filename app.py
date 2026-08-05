@@ -79,11 +79,12 @@ with st.sidebar:
     st.markdown("**Created by:** SARAVANAVEL R")
     st.divider()
     
-    st.markdown("### 📊 Features")
+    st.markdown("### 📊 this app Features")
     st.markdown("- 🔍 **NLP Detection**\n- 🔊 **Audio Pronunciation**\n- 🔄 **AI Translation**")
     st.info("Input at least a sentence for the best accuracy!")
     
     st.divider()
+    st.write("note:")
     st.markdown("### 💡 Supported Languages")
     st.caption(", ".join([info['name'] for info in LANG_INFO.values()]))
 
@@ -91,8 +92,8 @@ with st.sidebar:
 st.markdown("""
 <div class="main-header">
     <h1>🌐 Language Detection & AI Translator</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application ! input any text to detect its language, pronunciation and it's meaning</p>
-    <p class="author-tag">by SARO🤓</p>
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application guys!! input any text to detect its language, pronunciation and it's meaning</p>
+    <p class="author-tag">- by SARO🤓</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -112,7 +113,7 @@ with left_col:
     
     # Target translation choice
     target_lang = st.selectbox(
-        "Translate prediction into:",
+        "Translate text into:",
         options=["English", "Tamil", "Hindi"],
         index=0
     )
