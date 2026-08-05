@@ -75,7 +75,7 @@ LANG_INFO = {
 
 # Sidebar Info
 with st.sidebar:
-    st.title("🌐 Language Detector")
+    st.title("🌐 Language Detective")
     st.markdown("**Created by:** SARAVANAVEL R")
     st.divider()
     
@@ -93,7 +93,7 @@ with st.sidebar:
 st.markdown("""
 <div class="main-header">
     <h1>🌐 Language Detection & AI Translator</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application guys!! input any text to detect its language, pronunciation and it's meaning</p>
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application guys!! input any paragraph to detect its language, pronunciation and it's meaning</p>
     <p class="author-tag">- by SARO🤓</p>
 </div>
 """, unsafe_allow_html=True)
@@ -103,11 +103,11 @@ left_col, right_col = st.columns([1.2, 1], gap="large")
 
 with left_col:
     st.subheader("📝 Input Section")
-    st.write("Enter text in any supported language to detect, translate, and listen.")
+    st.write("Enter a paragraph in any supported language to detect, translate, and listen.")
     
     user_input = st.text_area(
-        label="Input Text Area",
-        placeholder="Type or paste your text here...",
+        label="Input Area",
+        placeholder="Type or paste your paragraph here...",
         height=180,
         label_visibility="collapsed"
     )
