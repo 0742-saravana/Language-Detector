@@ -143,7 +143,7 @@ with right_col:
             iso_code = lang_data['code']
             
             # --- CONFIDENCE THRESHOLD CHECK ---
-            CONFIDENCE_THRESHOLD = 50.0  # Cutoff percentage
+            CONFIDENCE_THRESHOLD = 5.0  # Cutoff percentage
             
             if confidence < CONFIDENCE_THRESHOLD:
                 st.warning(
