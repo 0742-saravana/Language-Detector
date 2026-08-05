@@ -76,7 +76,7 @@ LANG_INFO = {
 # Sidebar Info
 with st.sidebar:
     st.title("🌐 Language Detector")
-    st.markdown("**Created by:** saravanan😎✌️")
+    st.markdown("**Created by:** SARAVANAVEL R")
     st.divider()
     
     st.markdown("### 📊 Features")
@@ -91,8 +91,8 @@ with st.sidebar:
 st.markdown("""
 <div class="main-header">
     <h1>🌐 Language Detection & AI Translator</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application !</p>
-    <p class="author-tag">by saravanan😎✌️</p>
+    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">my first web-application ! input any text to detect its language, pronunciation and it's meaning</p>
+    <p class="author-tag">by SARO🤓</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -153,7 +153,7 @@ with right_col:
             """, unsafe_allow_html=True)
             
             # 2. Pronunciation Audio Guide (gTTS)
-            st.markdown("##### 🔊 Listen Pronunciation")
+            st.markdown("##### 🔊 Listen to Pronunciation")
             try:
                 tts = gTTS(text=user_input, lang=iso_code)
                 sound_file = io.BytesIO()
@@ -176,7 +176,7 @@ with right_col:
             except Exception as e:
                 st.error("Could not complete translation right now.")
             
-            st.success("yay😍!!! now you know the language, pronunciation, and meaning!!")
+            st.success("yay😍!!! now you know the language, it's pronunciation, and it's meaning!!")
             
             # 4. Top 3 Probabilities
             with st.expander("📊 View Probability Breakdown"):
